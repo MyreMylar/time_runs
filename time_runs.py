@@ -4,12 +4,17 @@ from pygame.locals import *
 
 from game.map_editor import MapEditor
 from game.main_menu import MainMenu
-from game.player import Player, Scheme
+from player import Player, Scheme
 from game.player_health_bar import HealthBar
 from game.player_guns_ui import GunsUI
 from game.tiled_level import TiledLevel
 from game.pick_up import PickUpSpawner
 from game.hud_button import HUDButton
+
+
+# ------------------------------------------------
+# Open the map editor in the game for challenge 1!
+# ------------------------------------------------
 
 
 class ScreenData:
@@ -24,7 +29,6 @@ class ScreenData:
 
 
 def main():
-    
     pygame.init()
     os.environ['SDL_VIDEO_CENTERED'] = '1'
     pygame.key.set_repeat()
@@ -56,7 +60,7 @@ def main():
     fonts.append(small_font)
     fonts.append(font)
     fonts.append(large_font)
-    
+
     explosions_sprite_sheet = pygame.image.load("images/explosions.png").convert_alpha()
 
     players = []
@@ -73,21 +77,21 @@ def main():
     tiled_level.load_tiles()
     tiled_level.reset_guards()
     main_menu = MainMenu(fonts)
-    
+
     hud_rect = pygame.Rect(0, screen_data.screen_size[1] - screen_data.hud_dimensions[1],
                            screen_data.hud_dimensions[0], screen_data.hud_dimensions[1])
 
     editor_hud_rect = pygame.Rect(0, screen_data.screen_size[1] - screen_data.editor_hud_dimensions[1],
                                   screen_data.editor_hud_dimensions[0], screen_data.editor_hud_dimensions[1])
     editor = MapEditor(tiled_level, editor_hud_rect, fonts)
-    
+
     health_bar = HealthBar([screen_data.hud_dimensions[0] - (screen_data.hud_dimensions[0] * 0.20),
                             screen_data.screen_size[1] - (0.75 * screen_data.hud_dimensions[1])],
                            (screen_data.hud_dimensions[0] * 0.15), 16)
     guns_ui = GunsUI([screen_data.hud_dimensions[0] - (screen_data.hud_dimensions[0] * 0.20),
                       screen_data.screen_size[1] - (0.5 * screen_data.hud_dimensions[1])],
                      (screen_data.hud_dimensions[0] * 0.15), 16)
-    
+
     rifle_button = HUDButton([48, screen_data.screen_size[1] - screen_data.hud_dimensions[1] + 48],
                              "rifle_icon", hud_sprites)
     shotgun_button = HUDButton([144, screen_data.screen_size[1] - screen_data.hud_dimensions[1] + 48],
@@ -101,22 +105,22 @@ def main():
     pick_up_spawner = PickUpSpawner(pick_ups, all_pick_up_sprites)
 
     player = None
-    
+
     clock = pygame.time.Clock()
 
     time_multiplier = 1.0
     running = True
-    
+
     is_main_menu = True
     is_editor = False
-    
+
     is_game_over = False
     restart_game = False
     win_message = ""
 
     while running:
         frame_time = clock.tick(60)
-        time_delta = frame_time/1000.0
+        time_delta = frame_time / 1000.0
 
         if is_main_menu:
             is_main_menu_and_index = main_menu.run(screen, fonts, screen_data)
@@ -136,7 +140,7 @@ def main():
                 players.append(player)
                 pygame.mouse.set_visible(False)
                 pygame.event.set_grab(True)
-                         
+
         elif is_editor:
             screen_data.set_editor_active()
             running = editor.run(screen, background, all_tile_sprites, editor_hud_rect, time_delta)
@@ -156,13 +160,13 @@ def main():
                 all_pick_up_sprites.empty()
 
                 is_game_over = False
-                
+
                 tiled_level.reset_guards()
                 default_scheme = Scheme()
                 player = Player(tiled_level.find_player_start(), tiled_level, default_scheme,
                                 explosions_sprite_sheet, hud_buttons)
                 players.append(player)
-                  
+
             elif is_game_over:
                 pass
             else:
@@ -178,7 +182,7 @@ def main():
             all_projectile_sprites.empty()
             all_explosion_sprites.empty()
             player_sprites.empty()
-                   
+
             # handle UI and inout events
             for event in pygame.event.get():
                 if event.type == QUIT:
@@ -230,7 +234,7 @@ def main():
                 all_explosion_sprites = explosion.update_sprite(all_explosion_sprites, time_delta,
                                                                 time_multiplier, tiled_level)
             explosions[:] = [explosion for explosion in explosions if not explosion.should_die]
-            
+
             screen.blit(background, (0, 0))  # draw the background
 
             all_tile_sprites.draw(screen)
@@ -271,30 +275,30 @@ def main():
                     time_stop_text_render = font.render(time_stop_string, True, pygame.Color("#FFFFFF"))
                     screen.blit(time_stop_text_render, time_stop_text_render.get_rect(x=32, centery=32))
 
-            time_string = "Speed of time: " + str(int(time_multiplier/1.0 * 100.0)) + "%"
+            time_string = "Speed of time: " + str(int(time_multiplier / 1.0 * 100.0)) + "%"
             time_text_render = small_font.render(time_string, True, pygame.Color("#FFFFFF"))
             time_text_x_pos = screen_data.hud_dimensions[0] * 0.85
             time_text_y_pos = screen_data.screen_size[1] - (screen_data.hud_dimensions[1] * 0.15)
             screen.blit(time_text_render,
                         time_text_render.get_rect(centerx=time_text_x_pos,
                                                   centery=time_text_y_pos))
-            
+
             if time_delta > 0.0:
-                fps_string = "FPS: " + "{:.2f}".format(1.0/time_delta)
+                fps_string = "FPS: " + "{:.2f}".format(1.0 / time_delta)
                 fps_text_render = font.render(fps_string, True, pygame.Color("#FFFFFF"))
                 fps_text_x_pos = screen_data.hud_dimensions[0] * 0.9
                 fps_text_y_pos = screen_data.screen_size[1] - (screen_data.screen_size[1] * 0.95)
                 screen.blit(fps_text_render,
                             fps_text_render.get_rect(centerx=fps_text_x_pos,
                                                      centery=fps_text_y_pos))
-            
+
             if is_game_over:
                 win_message_text_render = large_font.render(win_message, True, pygame.Color("#FFFFFF"))
-                win_message_text_render_rect = win_message_text_render.get_rect(centerx=x_screen_size/2,
-                                                                                centery=(y_screen_size/2)-128)
+                win_message_text_render_rect = win_message_text_render.get_rect(centerx=x_screen_size / 2,
+                                                                                centery=(y_screen_size / 2) - 128)
                 play_again_text_render = font.render("Play Again? Press 'Y' to restart", True, pygame.Color("#FFFFFF"))
-                play_again_text_render_rect = play_again_text_render.get_rect(centerx=x_screen_size/2,
-                                                                              centery=(y_screen_size/2)-64)
+                play_again_text_render_rect = play_again_text_render.get_rect(centerx=x_screen_size / 2,
+                                                                              centery=(y_screen_size / 2) - 64)
                 screen.blit(win_message_text_render, win_message_text_render_rect)
                 screen.blit(play_again_text_render, play_again_text_render_rect)
 

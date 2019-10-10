@@ -7,6 +7,15 @@ from game.shotgun_weapon import ShotgunWeapon
 from game.launcher_weapon import LauncherWeapon
 
 
+# -----------------------------------------------------------------------
+# Use the Scheme class below to set the keys for controlling the player
+# -----------------------------------------------------------------------
+# - K_RIGHT, K_LEFT, K_UP and K_DOWN are the codes for the
+#   arrow keys if you prefer those
+# - These keys are used in challenge 2
+#
+# SCROLL DOWN TO LINE 140 FOR CHALLENGE 2!
+# -----------------------------------------------------------------------
 class Scheme:
     def __init__(self):
         self.rifle = K_1
@@ -21,7 +30,7 @@ class Scheme:
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, start_pos, tiled_level, control_scheme, explosions_sprite_sheet, hud_buttons, *groups):
-        
+
         super().__init__(*groups)
         self.scheme = control_scheme
         self.image_name = "images/player.png"
@@ -66,7 +75,7 @@ class Player(pygame.sprite.Sprite):
         self.should_die = False
 
         self.move_accumulator = 0.0
-       
+
         self.position = [float(self.rect.center[0]), float(self.rect.center[1])]
         self.player_move_target = self.position
         self.distance_to_move_target = 0.0
@@ -101,7 +110,7 @@ class Player(pygame.sprite.Sprite):
         self.move_right = False
 
         self.per_bullet_damage = 25
-        
+
         self.player_fire_target = [10000, 10000]
 
         self.switch_to_rifle = False
@@ -127,6 +136,33 @@ class Player(pygame.sprite.Sprite):
         self.collision_obj_rects = []
         self.collision_obj_rect = pygame.Rect(0.0, 0.0, 2.0, 2.0)
 
+    # ------------------------------------------------------------------
+    # Challenge 2
+    # ----------------------------
+    #
+    # Make the player 'strafe' i.e. move left and right when the
+    # appropriate keys are pressed.
+    #
+    # - To do this we need to handle the events generated when the
+    #   move_left and move_right keys are pressed and released.
+    #
+    # - Look at how the move_forwards and move_backwards key events
+    #   are being handled below. You will need to do the same for
+    #   move_left and move_right. Don't forget to handle the KEYUP case
+    #   or you will strafe forever.
+    #
+    # - you will use the variables:
+    #       - self.scheme.move_left
+    #       - self.scheme.move_right
+    #       - self.move_left
+    #       - self.move_right
+    #
+    # - If you want to change which keys control the player's movement
+    #   the Scheme class used in process_event is at the top of this file.
+    #
+    # ----------------------------------------
+    # SCROLL DOWN TO LINE 203 FOR CHALLENGE 3!
+    # --------------------------------------------------------------------
     def process_event(self, event):
 
         if event.type == MOUSEBUTTONDOWN:
@@ -134,23 +170,19 @@ class Player(pygame.sprite.Sprite):
                 self.left_mouse_held = True
             if event.button == 3:
                 self.right_mouse_held = True
-                
+
         if event.type == MOUSEBUTTONUP:
             if event.button == 1:
                 self.left_mouse_held = False
             if event.button == 3:
                 self.right_mouse_held = False
-        
+
         if event.type == KEYDOWN:  # key pressed
             # movement key events
             if event.key == self.scheme.move_forwards:
                 self.move_forwards = True
             if event.key == self.scheme.move_backwards:
                 self.move_backwards = True
-            if event.key == self.scheme.move_left:
-                self.move_left = True
-            if event.key == self.scheme.move_right:
-                self.move_right = True
 
             # switch weapon key events
             if event.key == self.scheme.rifle:
@@ -166,30 +198,39 @@ class Player(pygame.sprite.Sprite):
                 self.move_forwards = False
             if event.key == self.scheme.move_backwards:
                 self.move_backwards = False
-            if event.key == self.scheme.move_left:
-                self.move_left = False
-            if event.key == self.scheme.move_right:
-                self.move_right = False
 
+    # -----------------------------------------------------------------------------------------------------
+    # Challenge 3
+    # ----------------------
+    #
+    # Make the 'time crystal' power-up slow time for your enemies, but not for your player. You can achieve
+    # this by modifying the calculate_time_multipliers function below.
+    #
+    # TIPS
+    # ------
+    # - You can test if the time crystal is active with the Boolean variable; 'self.time_crystal_active'
+    # - The player's time multiplier is self.player_time_multiplier, everyone else uses self.time_multiplier
+    # - Time runs normally at a value of 1.0
+    # - Make sure you still run the normal case, where everyone's time is linked to the player's run speed,
+    #   when the time crystal is not active.
+    #
+    # - NOTE: Even the powers of the time crystal cannot help your bullets.
+    # -----------------------------------------------------------------------------------------------------
     def calculate_time_multipliers(self):
         # calculate the speed of time based on the speed the player is moving.
         # Lerp is a goofy shorthand word for 'linear interpolation', which just means that we calculate a value between
         # a minimum and a maximum value based on the percentage. So 0% would just return the minimum, 100% would be the
         # maximum and 50% would be halfway between them.
-        if self.time_crystal_active:
-            self.time_multiplier = 0.0
-            self.player_time_multiplier = 1.0
-        else:
-            time_multiplier_lerp = min(1.0, abs(self.total_speed) / self.max_speed)  # percentage of maximum move speed
-            self.time_multiplier = self.lerp(self.time_min_speed, self.time_max_speed, time_multiplier_lerp)
+        time_multiplier_lerp = min(1.0, abs(self.total_speed) / self.max_speed)  # percentage of maximum move speed
+        self.time_multiplier = self.lerp(self.time_min_speed, self.time_max_speed, time_multiplier_lerp)
 
-            self.player_time_multiplier = self.time_multiplier
+        self.player_time_multiplier = self.time_multiplier
 
         return self.time_multiplier
 
     def activate_time_crystal(self):
         self.time_crystal_active = True
-        
+
     @staticmethod
     def get_world_position_from_screen_pos(screen_pos, world_offset):
         world_pos = [0, 0]
@@ -197,14 +238,14 @@ class Player(pygame.sprite.Sprite):
         world_pos[1] = screen_pos[1] + world_offset[1]
 
         return world_pos
-    
+
     def update_screen_position(self, world_offset):
         self.screen_position[0] = self.position[0] - world_offset[0]
         self.screen_position[1] = self.position[1] - world_offset[1]
 
     def update_sprite(self, all_sprites, time_delta):
         all_sprites.add(self)
-        
+
         if self.should_flash_sprite:
             self.sprite_flash_acc += time_delta
             if self.sprite_flash_acc > self.sprite_flash_time:
@@ -236,7 +277,7 @@ class Player(pygame.sprite.Sprite):
         for explosion in new_explosions:
             if self.test_explosion_collision(explosion):
                 self.take_damage(explosion.damage.amount)
-                
+
         if self.health == 0:
             self.should_die = True
 
@@ -271,7 +312,7 @@ class Player(pygame.sprite.Sprite):
             self.rect.center = self.rot_point([self.screen_position[0],
                                                self.screen_position[1] + self.sprite_rot_centre_offset[1]],
                                               self.screen_position, -self.new_facing_angle)
-               
+
         if self.switch_to_missile_launcher:
             self.switch_to_missile_launcher = False
             self.active_weapon = self.launcher_weapon
@@ -289,14 +330,14 @@ class Player(pygame.sprite.Sprite):
                                               self.screen_position, -self.new_facing_angle)
 
         fire_this_update = False
-        
+
         if self.active_weapon.can_fire and (self.left_mouse_held or self.right_mouse_held):
             fire_this_update = True
             self.active_weapon.fire_rate_acc = 0.0
             self.active_weapon.can_fire = False
 
         self.active_weapon.update(time_delta, self.player_time_multiplier, self.position, self.current_vector)
-        
+
         if fire_this_update:
             self.active_weapon.fire(projectiles)
 
@@ -315,12 +356,12 @@ class Player(pygame.sprite.Sprite):
                 self.speed += self.acceleration * time_delta
                 if self.speed > self.max_speed:
                     self.speed = self.max_speed
-                
+
             elif self.move_backwards:
                 self.speed -= self.acceleration * time_delta
                 if self.speed < self.max_reverse_speed:
                     self.speed = self.max_reverse_speed
-                
+
             if self.move_right:
                 self.strafe_speed -= self.strafe_acceleration * time_delta
                 if abs(self.strafe_speed) > self.max_strafe_speed:
@@ -372,7 +413,7 @@ class Player(pygame.sprite.Sprite):
                             collision_obj_rect = pygame.Rect(0.0, 0.0, 2.0, 2.0)
                             collision_obj_rect.center = col_point
                             self.collision_obj_rects.append(collision_obj_rect)
-                            
+
             for monster in monsters:
                 if self.test_monster_collision(self.test_collision_sprite.rect, monster):
                     collided = True
@@ -382,10 +423,10 @@ class Player(pygame.sprite.Sprite):
 
                 test_move_position = self.handle_collision(self.collision_obj_rects, test_move_position,
                                                            tiled_level, monsters)
-                
+
                 self.position[0] = test_move_position[0]
                 self.position[1] = test_move_position[1]
-                
+
                 self.move_accumulator += self.total_speed * time_delta
             else:
                 self.should_draw_collision_obj = False
@@ -399,7 +440,7 @@ class Player(pygame.sprite.Sprite):
                 self.move_accumulator += self.total_speed * time_delta
 
             self.update_screen_position(tiled_level.position_offset)
-                
+
             if abs(self.move_accumulator) > 64.0:
                 self.image = pygame.transform.rotate(self.active_weapon.anim_set.stand, self.new_facing_angle)
                 self.rect = self.image.get_rect()
@@ -451,7 +492,7 @@ class Player(pygame.sprite.Sprite):
             collision_vec = [self.screen_position[0] - collision_obj_rects[0][0],
                              self.screen_position[1] - collision_obj_rects[0][1]]
             collision_vec_len = math.sqrt((collision_vec[0] * collision_vec[0]) + (collision_vec[1] * collision_vec[1]))
-            normal_collision_vec = [collision_vec[0]/collision_vec_len, collision_vec[1]/collision_vec_len]
+            normal_collision_vec = [collision_vec[0] / collision_vec_len, collision_vec[1] / collision_vec_len]
 
             collision_overlap = max(0.3, (self.collide_radius - collision_vec_len))
 
@@ -513,7 +554,7 @@ class Player(pygame.sprite.Sprite):
         if temp_player_rect.colliderect(monster.rect):
             collided = self.is_intersecting(monster)
         return collided
-    
+
     def test_tile_collision(self, temp_player_rect, test_screen_position, tile):
         collided = (False, [])
         if temp_player_rect.colliderect(tile.rect):
@@ -525,13 +566,13 @@ class Player(pygame.sprite.Sprite):
         if self.rect.colliderect(projectile_rect):
             if (self.test_point_in_circle(projectile_rect.topleft,
                                           self.screen_position,
-                                          self.collide_radius)) or\
+                                          self.collide_radius)) or \
                     (self.test_point_in_circle(projectile_rect.topright,
                                                self.screen_position,
-                                               self.collide_radius)) or\
+                                               self.collide_radius)) or \
                     (self.test_point_in_circle(projectile_rect.bottomleft,
                                                self.screen_position,
-                                               self.collide_radius)) or\
+                                               self.collide_radius)) or \
                     (self.test_point_in_circle(projectile_rect.bottomright,
                                                self.screen_position,
                                                self.collide_radius)):
@@ -543,13 +584,13 @@ class Player(pygame.sprite.Sprite):
         if self.rect.colliderect(pick_up_rect):
             if (self.test_point_in_circle(pick_up_rect.topleft,
                                           self.screen_position,
-                                          self.collide_radius)) or\
+                                          self.collide_radius)) or \
                     (self.test_point_in_circle(pick_up_rect.topright,
                                                self.screen_position,
-                                               self.collide_radius)) or\
+                                               self.collide_radius)) or \
                     (self.test_point_in_circle(pick_up_rect.bottomleft,
                                                self.screen_position,
-                                               self.collide_radius)) or\
+                                               self.collide_radius)) or \
                     (self.test_point_in_circle(pick_up_rect.bottomright,
                                                self.screen_position,
                                                self.collide_radius)):
@@ -558,10 +599,10 @@ class Player(pygame.sprite.Sprite):
 
     def test_explosion_collision(self, explosion):
         collided = False
-        if self.rect.colliderect(explosion.rect):
+        if self.rect.colliderect(explosion.sprite.rect):
             collided = self.is_explosion_intersecting(explosion) or self.is_circle_inside(explosion)
         return collided
-    
+
     def is_explosion_intersecting(self, c2):
         x_dist = (self.screen_position[0] - c2.position[0]) ** 2
         y_dist = (self.screen_position[1] - c2.position[1]) ** 2
@@ -584,7 +625,7 @@ class Player(pygame.sprite.Sprite):
     @staticmethod
     def test_point_in_circle(point, circle_pos, circle_radius):
         return (point[0] - circle_pos[0]) ** 2 + (point[1] - circle_pos[1]) ** 2 < circle_radius ** 2
-    
+
     # tiles positions are in screen space currently
     def is_intersecting_tile(self, tile, test_screen_position):
         collided = False
@@ -602,11 +643,11 @@ class Player(pygame.sprite.Sprite):
                     shape_centre[0] = collisionShape[2][0]
                     shape_centre[1] = collisionShape[2][1]
                     collision_positions.append(shape_centre)
-            elif collisionShape[0] == "rect":             
+            elif collisionShape[0] == "rect":
                 result = self.test_rect_in_circle(collisionShape[2], test_screen_position, self.collide_radius)
                 if result[0]:
                     collided = True
-                    
+
                     if len(result[1]) > 0:
                         for point in result[1]:
                             collision_positions.append(point)
@@ -624,7 +665,7 @@ class Player(pygame.sprite.Sprite):
         bottom_in = self.line_intersect_circle(circle_position, circle_radius, rect.bottomleft, rect.bottomright)
         left_in = self.line_intersect_circle(circle_position, circle_radius, rect.topleft, rect.bottomleft)
         right_in = self.line_intersect_circle(circle_position, circle_radius, rect.topright, rect.bottomright)
-        
+
         collision_points = []
         if top_in[0]:
             collision_points.append(top_in[1])
@@ -634,7 +675,7 @@ class Player(pygame.sprite.Sprite):
             collision_points.append(left_in[1])
         if right_in[0]:
             collision_points.append(right_in[1])
-            
+
         return centre_in or top_in[0] or bottom_in[0] or left_in[0] or right_in[0], collision_points
 
     # noinspection PyArgumentList
@@ -644,16 +685,16 @@ class Player(pygame.sprite.Sprite):
         circle_centre_vec = pygame.math.Vector2(circle_centre)
         line_start_vec = pygame.math.Vector2(line_start)
         line_end_vec = pygame.math.Vector2(line_end)
-        q = circle_centre_vec             # Centre of circle
-        r = circle_radius                # Radius of circle
-        p1 = line_start_vec               # Start of line segment
-        v = line_end_vec - p1             # Vector along line segment
+        q = circle_centre_vec  # Centre of circle
+        r = circle_radius  # Radius of circle
+        p1 = line_start_vec  # Start of line segment
+        v = line_end_vec - p1  # Vector along line segment
 
         a = v.dot(v)
         b = 2 * v.dot(p1 - q)
-        c = p1.dot(p1) + q.dot(q) - 2 * p1.dot(q) - r**2
+        c = p1.dot(p1) + q.dot(q) - 2 * p1.dot(q) - r ** 2
 
-        disc = b**2 - 4 * a * c
+        disc = b ** 2 - 4 * a * c
         if disc < 0:
             return intersects, [0.0, 0.0]  # False
 
@@ -692,7 +733,7 @@ class Player(pygame.sprite.Sprite):
 
         pygame.draw.circle(s, pygame.Color("8888FF"), (self.collide_radius, self.collide_radius), self.collide_radius)
 
-        # after drawing the circle, we can set the 
+        # after drawing the circle, we can set the
         # alpha value (transparency) of the surface
         s.set_alpha(180)
         screen.blit(s, int_position)
@@ -701,7 +742,7 @@ class Player(pygame.sprite.Sprite):
             for col_obj_rect in self.collision_obj_rects:
                 # print("Collide pos: " + str(col_obj_rect[0]) + ", " + str(col_obj_rect[1]))
                 pygame.draw.rect(screen, pygame.Color("#FF0000"), col_obj_rect)
-    
+
     @staticmethod
     def distance_from_line(point, line):
 
@@ -712,10 +753,10 @@ class Player(pygame.sprite.Sprite):
         x3 = point[0]
         y3 = point[1]
 
-        px = x2-x1
-        py = y2-y1
+        px = x2 - x1
+        py = y2 - y1
 
-        something = px*px + py*py
+        something = px * px + py * py
 
         u = ((x3 - x1) * px + (y3 - y1) * py) / float(something)
 
@@ -736,7 +777,7 @@ class Player(pygame.sprite.Sprite):
         # can just return the squared distance instead
         # (i.e. remove the sqrt) to gain a little performance
 
-        dist = math.sqrt(dx*dx + dy*dy)
+        dist = math.sqrt(dx * dx + dy * dy)
 
         return dist
 
@@ -747,9 +788,9 @@ class Player(pygame.sprite.Sprite):
         """
         ang -= 90
         x, y = point[0] - axis[0], point[1] - axis[1]
-        radius = math.sqrt(x*x + y*y)  # get the distance between points
+        radius = math.sqrt(x * x + y * y)  # get the distance between points
 
-        r_ang = math.radians(ang)       # convert ang to radians.
+        r_ang = math.radians(ang)  # convert ang to radians.
 
         h = axis[0] + (radius * math.cos(r_ang))
         v = axis[1] + (radius * math.sin(r_ang))
@@ -764,7 +805,7 @@ class Player(pygame.sprite.Sprite):
 class RespawnPlayer:
     def __init__(self, player):
         self.control_scheme = player.scheme
-        
+
         self.respawn_timer = 2.0
         self.time_to_spawn = False
         self.has_respawned = False
