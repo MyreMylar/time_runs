@@ -7,15 +7,6 @@ from game.shotgun_weapon import ShotgunWeapon
 from game.launcher_weapon import LauncherWeapon
 
 
-# -----------------------------------------------------------------------
-# Use the Scheme class below to set the keys for controlling the player
-# -----------------------------------------------------------------------
-# - K_RIGHT, K_LEFT, K_UP and K_DOWN are the codes for the
-#   arrow keys if you prefer those
-# - These keys are used in challenge 2
-#
-# SCROLL DOWN TO LINE 140 FOR CHALLENGE 2!
-# -----------------------------------------------------------------------
 class Scheme:
     def __init__(self):
         self.rifle = K_1
@@ -136,33 +127,6 @@ class Player(pygame.sprite.Sprite):
         self.collision_obj_rects = []
         self.collision_obj_rect = pygame.Rect(0.0, 0.0, 2.0, 2.0)
 
-    # ------------------------------------------------------------------
-    # Challenge 2
-    # ----------------------------
-    #
-    # Make the player 'strafe' i.e. move left and right when the
-    # appropriate keys are pressed.
-    #
-    # - To do this we need to handle the events generated when the
-    #   move_left and move_right keys are pressed and released.
-    #
-    # - Look at how the move_forwards and move_backwards key events
-    #   are being handled below. You will need to do the same for
-    #   move_left and move_right. Don't forget to handle the KEYUP case
-    #   or you will strafe forever.
-    #
-    # - you will use the variables:
-    #       - self.scheme.move_left
-    #       - self.scheme.move_right
-    #       - self.move_left
-    #       - self.move_right
-    #
-    # - If you want to change which keys control the player's movement
-    #   the Scheme class used in process_event is at the top of this file.
-    #
-    # ----------------------------------------
-    # SCROLL DOWN TO LINE 203 FOR CHALLENGE 3!
-    # --------------------------------------------------------------------
     def process_event(self, event):
 
         if event.type == MOUSEBUTTONDOWN:
@@ -183,6 +147,10 @@ class Player(pygame.sprite.Sprite):
                 self.move_forwards = True
             if event.key == self.scheme.move_backwards:
                 self.move_backwards = True
+            if event.key == self.scheme.move_left:
+                self.move_left = True
+            if event.key == self.scheme.move_right:
+                self.move_right = True
 
             # switch weapon key events
             if event.key == self.scheme.rifle:
@@ -198,33 +166,24 @@ class Player(pygame.sprite.Sprite):
                 self.move_forwards = False
             if event.key == self.scheme.move_backwards:
                 self.move_backwards = False
+            if event.key == self.scheme.move_left:
+                self.move_left = False
+            if event.key == self.scheme.move_right:
+                self.move_right = False
 
-    # -----------------------------------------------------------------------------------------------------
-    # Challenge 3
-    # ----------------------
-    #
-    # Make the 'time crystal' power-up slow time for your enemies, but not for your player. You can achieve
-    # this by modifying the calculate_time_multipliers function below.
-    #
-    # TIPS
-    # ------
-    # - You can test if the time crystal is active with the Boolean variable; 'self.time_crystal_active'
-    # - The player's time multiplier is self.player_time_multiplier, everyone else uses self.time_multiplier
-    # - Time runs normally at a value of 1.0
-    # - Make sure you still run the normal case, where everyone's time is linked to the player's run speed,
-    #   when the time crystal is not active.
-    #
-    # - NOTE: Even the powers of the time crystal cannot help your bullets.
-    # -----------------------------------------------------------------------------------------------------
     def calculate_time_multipliers(self):
         # calculate the speed of time based on the speed the player is moving.
         # Lerp is a goofy shorthand word for 'linear interpolation', which just means that we calculate a value between
         # a minimum and a maximum value based on the percentage. So 0% would just return the minimum, 100% would be the
         # maximum and 50% would be halfway between them.
-        time_multiplier_lerp = min(1.0, abs(self.total_speed) / self.max_speed)  # percentage of maximum move speed
-        self.time_multiplier = self.lerp(self.time_min_speed, self.time_max_speed, time_multiplier_lerp)
+        if self.time_crystal_active:
+            self.time_multiplier = 0.0
+            self.player_time_multiplier = 1.0
+        else:
+            time_multiplier_lerp = min(1.0, abs(self.total_speed) / self.max_speed)  # percentage of maximum move speed
+            self.time_multiplier = self.lerp(self.time_min_speed, self.time_max_speed, time_multiplier_lerp)
 
-        self.player_time_multiplier = self.time_multiplier
+            self.player_time_multiplier = self.time_multiplier
 
         return self.time_multiplier
 

@@ -4,18 +4,14 @@ from pygame.locals import *
 
 from game.map_editor import MapEditor
 from game.main_menu import MainMenu
-from player import Player, Scheme
+from game.player import Player, Scheme
 from game.player_health_bar import HealthBar
 from game.player_guns_ui import GunsUI
 from game.tiled_level import TiledLevel
 from game.pick_up import PickUpSpawner
 from game.hud_button import HUDButton
 
-# ------------------------------------------------
-# Open the map editor in the game for challenge 1!
-# ------------------------------------------------
 
-        
 class ScreenData:
     def __init__(self, hud_size, editor_hud_size, screen_size):
         self.screen_size = screen_size
