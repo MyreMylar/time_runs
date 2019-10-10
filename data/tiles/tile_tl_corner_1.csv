@@ -1,0 +1,4 @@
+isCollidable,1
+tileImageCoords,6,0
+rect,0,0,64,23
+rect,0,23,23,64

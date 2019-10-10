@@ -1,0 +1,13 @@
+ 
+Bugs
+----
+- player rotation is borked
+
+features
+---------
+ - health bars for enemies
+ - death splats?
+ - enemies no longer track player forever instead have facing 'view cone' and can hear sound of gun firing. Will once spotted will aim at player's last known
+   location. Enemies take time to rotate into position. Enemies aim is innacurate. Enemies do not shoot if they don't have actual line of sight on player from off map
+ - shotgun to be more shotgunn-y, more lower dmaage pellets more spray-ee
+ - add 'time' display on HUD which speeds up and slows down with current rate of time.
