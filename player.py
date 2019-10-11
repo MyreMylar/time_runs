@@ -599,7 +599,7 @@ class Player(pygame.sprite.Sprite):
 
     def test_explosion_collision(self, explosion):
         collided = False
-        if self.rect.colliderect(explosion.sprite.rect):
+        if self.rect.colliderect(explosion.rect):
             collided = self.is_explosion_intersecting(explosion) or self.is_circle_inside(explosion)
         return collided
 
