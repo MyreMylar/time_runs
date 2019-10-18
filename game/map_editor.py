@@ -34,7 +34,7 @@ class MapEditor:
 
         self.need_to_refresh_tiles = True
 
-        self.default_tile = [pygame.Rect(0, 0, 0, 0), self.tiled_level.tile_map[0][0], "grass_tile", True, None]
+        self.default_tile = [pygame.Rect(0, 0, 0, 0), self.tiled_level.tile_map[0][0], "grass_tile_1", True, None]
         self.held_tile_data = self.default_tile
 
         self.held_ai_spawn = None
@@ -326,6 +326,6 @@ class MapEditor:
         for ai_spawn in self.palette_ai_spawns:
             if ai_spawn.rect[0] <= click_pos[0] and ai_spawn.rect[1] <= click_pos[1]:
                 if ai_spawn.rect[0] + ai_spawn.rect[2] > click_pos[0] and\
-                        ai_spawn.rect[1] + ai_spawn.wwrect[3] > click_pos[1]:
+                        ai_spawn.rect[1] + ai_spawn.rect[3] > click_pos[1]:
                     return ai_spawn
         return None
