@@ -382,9 +382,9 @@ class TiledLevel:
     def add_ai_spawn_at_pos(self, click_pos, ai_spawn):
         tile_to_set = None
         for tile in self.tiles:
-            if tile.sprite.rect[0] <= click_pos[0] and tile.sprite.rect[1] <= click_pos[1]:
-                if tile.sprite.rect[0] + tile.sprite.rect[2] > click_pos[0] and\
-                        tile.sprite.rect[1] + tile.sprite.rect[3] > click_pos[1]:
+            if tile.rect[0] <= click_pos[0] and tile.rect[1] <= click_pos[1]:
+                if tile.rect[0] + tile.rect[2] > click_pos[0] and\
+                        tile.rect[1] + tile.rect[3] > click_pos[1]:
                     tile_to_set = tile
         already_placed = False
 
@@ -402,9 +402,9 @@ class TiledLevel:
     def remove_ai_spawn_at_pos(self, click_pos):
         tile_to_set = None
         for tile in self.tiles:
-            if tile.sprite.rect[0] <= click_pos[0] and tile.sprite.rect[1] <= click_pos[1]:
-                if tile.sprite.rect[0] + tile.sprite.rect[2] > click_pos[0] and\
-                        tile.sprite.rect[1] + tile.sprite.rect[3] > click_pos[1]:
+            if tile.rect[0] <= click_pos[0] and tile.rect[1] <= click_pos[1]:
+                if tile.rect[0] + tile.rect[2] > click_pos[0] and\
+                        tile.rect[1] + tile.rect[3] > click_pos[1]:
                     tile_to_set = tile
         spawn_to_remove = None
         for spawn in self.ai_spawns:
